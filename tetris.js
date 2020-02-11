@@ -151,9 +151,29 @@ Piece.prototype.moveLeft = function(){
 // collision detection function 
 
 Piece.prototype.collision = function(x,y, piece){
-    for (r = 0; r < this.activeTetromino.length; r++){
-        for (c = 0; c < this.activeTetromino.length; c++){
-            
+    for (r = 0; r < piece.length; r++){
+        for (c = 0; c < piece.length; c++){
+            // if the square is VACANT, we go to the next one
+            if(!piece[r][c]){
+                continue;
+            }
+            // coordinates of the piece after movement
+            let newX = this.x + c + x;
+            let newY = this.y + r + y;
+
+            // if any of the squares is beyond the boundaries.
+            if (newX < 0 || newX >= COL || newY >= ROW){
+                return true;
+            }
+            // skip newY < 0, board[-1] will crash the game
+            if (newY < 0){
+                continue;
+            }
+            // check if there is a locked piece already in place
+            if (board[newX][newY] != VACANT){
+                return true;
+            }
         }
     }
+    return false;
 }
