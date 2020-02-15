@@ -116,7 +116,8 @@ Piece.prototype.moveDown = function(){
         this.draw();
     }
     else {
-        // things we will see later
+        this.lock();
+        piece = randomPiece();
     }
 }
 
@@ -148,6 +149,69 @@ Piece.prototype.moveLeft = function(){
     }
 }
 
+// rotate the piece
+
+Piece.prototype.rotate = function(){
+    let nextPattern = this.tetrimino[(this.tetriminoN + 1)%this.tetrimino.length];
+    let kick = 0;
+    if ( this.collision(0,0, nextPattern)){
+        if (this.x > COL / 2){
+            kick = -1;
+        }
+        else {
+            kick = 1;
+        }
+    }
+    if (!this.collision(kick,0, nextPattern)){
+        this.unDraw();
+        this.x += kick;
+        this.tetriminoN = (this.tetriminoN+1)%this.tetrimino.length;
+        this.activeTetrimino = this.tetrimino[this.tetriminoN];
+        this.draw();
+    }
+}
+
+Piece.prototype.lock = function(){
+    for (r = 0; r < this.activeTetrimino.length; r++){
+        for (c = 0; c < this.activeTetrimino.length; c++){
+            // we skip the vacant squares
+            if(!this.activeTetrimino[r][c]){
+                continue;
+            }
+            if (this.y + r < 0){
+                gameOver = true;
+                alert("Game Over");
+                break;
+            }
+            board[this.y+r][this.x+c] = this.color;
+        }
+        // remove full rows
+        for (r = 0; r < ROW; r++){
+            let isRowFull = true;
+            for (c = 0; c < COL; c++){
+                isRowFull = isRowFull && (board[r][c] != VACANT);
+            }
+            if (isRowFull){
+                for(y = r; y > 1; y--){
+                    for(c = 0; c < COL; c++){
+                        board[y][c] = board[y-1][c];
+                    }
+                }
+                // the top row board[0][..] has no row above it
+                for (c = 0; c < COL; c++){
+                    board[0][c] = VACANT;
+                }
+                // increment the score
+                score += 10;
+            }
+        }
+        // update the board
+        drawBoard();
+
+        // update the score
+        scoreElement.innerHTML = score;
+    }
+}
 // collision detection function 
 
 Piece.prototype.collision = function(x,y, piece){
@@ -177,3 +241,19 @@ Piece.prototype.collision = function(x,y, piece){
     }
     return false;
 }
+
+// drop the piece every 1sec
+let dropStart = Data.now();
+function drop(){
+    let now = Data.now();
+    let delta = now - dropStart;
+    if(delta > 1000){
+        piece.moveDown();
+        dropStart = Data.now();
+    }
+    if (!gameOver){
+        requestAnimationFrame(drop);
+    }
+}
+
+drop();
