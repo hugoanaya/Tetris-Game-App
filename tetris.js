@@ -74,6 +74,7 @@ function Piece(tetrimino, color){
 Piece.prototype.fill = function(color){
     for (r = 0; r < this.activeTetrimino.length; r++){
         for (c = 0; c < this.activeTetrimino.length; c++){
+            // we draw only occupied spaces
             if(this.activeTetrimino[r][c]){
                 drawSquare(this.x + c, this.y + r, color);
             }
@@ -84,26 +85,14 @@ Piece.prototype.fill = function(color){
 // draw a piece on the board
 
 Piece.prototype.draw = function(){
-    for (r = 0; r < this.activeTetromino.length; r++){
-        for (c = 0; c < this.activeTetromino.length; c++){
-            if (this.activeTetrimino[r][c]){
-                drawSquare(this.x + c, this.y + r, this.color);
-            }
-        }
-    }
+    this.fill(this.color);
 }
 
 // undraw a piece on the board
 
 
 Piece.prototype.unDraw = function(){
-    for (r = 0; r < this.activeTetromino.length; r++){
-        for (c = 0; c < this.activeTetromino.length; c++){
-            if (this.activeTetrimino[r][c]){
-                drawSquare(this.x + c, this.y + r, VACANT);
-            }
-        }
-    }
+    this.fill(VACANT);
 }
 
 // move the piece down
